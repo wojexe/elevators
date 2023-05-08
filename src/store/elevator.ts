@@ -3,18 +3,40 @@ type ElevatorID = number;
 type ElevatorStatus = {
   elevatorID: ElevatorID;
   currentFloor: number;
-  targetFloor: number;
+  targetFloor: number | null;
+};
+
+type Range = {
+  high: number;
+  low: number;
+};
+
+const closestToZero = (a: number, b: number): number => {
+  if (isBetweenEqual(0, a, b)) return 0;
+  else if (Math.abs(a) === Math.abs(b)) return Math.sign(a) < 0 ? b : a;
+  else return Math.abs(a) < Math.abs(b) ? a : b;
+};
+
+const isBetweenEqual = (target: number, a: number, b: number): boolean => {
+  // Check if target is equal OR higher OR lower than current
+  return (a <= target && target <= b) || (a >= target && target >= b);
 };
 
 class Elevator {
   #id: ElevatorID;
   #currentFloor: number;
   #queue: Array<number>;
+  #range: {
+    high: number;
+    low: number;
+  };
 
-  constructor(elevatorID: ElevatorID) {
+  constructor(elevatorID: ElevatorID, options = { low: -3, high: 12 }) {
     this.#id = elevatorID;
-    this.#currentFloor = 0;
+    this.#currentFloor = closestToZero(options.high - 1, options.low); // exclusive
     this.#queue = [];
+
+    this.#range = { ...options };
   }
 
   get ID(): ElevatorID {
@@ -25,28 +47,33 @@ class Elevator {
     return this.#currentFloor;
   }
 
-  get currentTarget(): number {
-    return this.#queue[0] ?? this.#currentFloor;
+  set currentFloor(floor: number) {
+    if (!isBetweenEqual(floor, this.#range.high, this.#range.low))
+      throw new Error(`Provided floor outside of elevator #${this.#id} range`);
+
+    this.#currentFloor = floor;
+  }
+
+  get currentTarget(): number | null {
+    return this.#queue[0] ?? null;
   }
 
   get currentTargets(): Array<number> {
     return this.#queue;
   }
 
-  get status(): ElevatorStatus {
+  get status(): ElevatorStatus & Range {
     return {
       elevatorID: this.#id,
       currentFloor: this.#currentFloor,
-      targetFloor: this.currentTarget
-    } satisfies ElevatorStatus;
-  }
-
-  #isBetween(target: number, a: number, b: number): boolean {
-    // Requested floor higher OR lower than current
-    return (a < target && target < b) || (a > target && target > b);
+      targetFloor: this.currentTarget,
+      ...this.#range
+    } satisfies ElevatorStatus & Range;
   }
 
   #step() {
+    if (this.currentTarget == null) return;
+
     if (this.#currentFloor === this.currentTarget) {
       this.#queue.shift(); // Passengers go in and out
     } else if (this.#currentFloor < this.currentTarget) {
@@ -65,7 +92,11 @@ class Elevator {
     return this;
   }
 
-  #request(floor: number): void {
+  #request(floor: number): void | never {
+    // If the requested floor is outside of elevator's range
+    if (!isBetweenEqual(floor, this.#range.high, this.#range.low))
+      throw new Error(`Provided floor outside of elevator #${this.#id} range`);
+
     // If the floor already is in the queue
     if (this.#currentFloor === floor || this.#queue.includes(floor)) return;
 
@@ -76,7 +107,9 @@ class Elevator {
     }
 
     // Find if there are any targets where this floor is between
-    if (this.#isBetween(floor, this.#currentFloor, this.currentTarget)) {
+    if (
+      isBetweenEqual(floor, this.#currentFloor, this.currentTarget ?? this.#currentFloor)
+    ) {
       this.#queue.splice(0, 0, floor);
       return;
     }
@@ -85,7 +118,7 @@ class Elevator {
       const prevTarget = this.#queue[i - 1];
       const nextTarget = this.#queue[i];
 
-      if (this.#isBetween(floor, prevTarget, nextTarget)) {
+      if (isBetweenEqual(floor, prevTarget, nextTarget)) {
         this.#queue.splice(i, 0, floor);
         return;
       }
@@ -107,9 +140,12 @@ class Elevator {
   }
 
   public forceTarget(targetFloor: number): void {
+    if (!isBetweenEqual(targetFloor, this.#range.high, this.#range.low))
+      throw new Error(`Provided floor outside of elevator #${this.#id} range`);
+
     this.#queue.unshift(targetFloor);
   }
 }
 
 export default Elevator;
-export type { ElevatorID, ElevatorStatus };
+export type { ElevatorID, ElevatorStatus, Range };

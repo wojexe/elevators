@@ -1,9 +1,10 @@
 <script lang="ts">
   export let current: boolean;
   export let target: boolean;
+  export let currentTarget: boolean;
 </script>
 
-<div class="floor" class:current class:target>
+<div class="floor" class:current class:target class:currentTarget>
   <slot />
 </div>
 
@@ -17,12 +18,17 @@
     text-align: center;
     color: white;
 
-    background-color: rgba(0,0,0,0.7);
+    background-color: rgba(0, 0, 0, 0.7);
+
+    transition: background-color 0.2s ease-in-out;
   }
   .current {
     background-color: orange;
   }
   .target {
+    background-color: salmon;
+  }
+  .currentTarget {
     background-color: red;
   }
 </style>

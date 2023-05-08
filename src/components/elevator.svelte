@@ -1,12 +1,13 @@
 <script lang="ts">
   import Floor from "./floor.svelte";
-  import type { ElevatorStatus } from "../store/elevator";
+  import type { Range, ElevatorStatus } from "../store/elevator";
 
-  export let elevatorStatus: ElevatorStatus;
-  $: ({ elevatorID, currentFloor, targetFloor } = elevatorStatus);
+  export let elevatorStatus: ElevatorStatus & Range & { allTargets: Array<number> };
+  $: ({ elevatorID, currentFloor, targetFloor, allTargets } = elevatorStatus);
+  let { high, low } = elevatorStatus;
 
-  let floors: Array<number> = new Array(16)
-    .fill(-3)
+  let floors: Array<number> = new Array(Math.abs(high - low))
+    .fill(low)
     .map((el, i) => el + i)
     .reverse();
 </script>
@@ -16,9 +17,12 @@
 
   <div class="floors">
     {#each floors as floor}
-      <Floor current={floor === currentFloor} target={floor === targetFloor}
-        >{floor}</Floor
-      >
+      <Floor
+        current={floor === currentFloor}
+        currentTarget={floor === targetFloor}
+        target={allTargets.includes(floor)}
+        >{floor}
+      </Floor>
     {/each}
   </div>
 </div>

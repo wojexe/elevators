@@ -1,8 +1,10 @@
 <script lang="ts">
   import { elevatorSystem } from "../store/index";
-  import Elevator from "./elevator.svelte";
+  import Elevator from "../components/elevator.svelte";
 
   let newID = "";
+  let newHigh = "";
+  let newLow = "";
 
   let pickupID = "";
   let pickupFloor = "";
@@ -11,7 +13,7 @@
   let updateCurrent = "";
   let updateTarget = "";
 
-  const parseIntThrowing = (v: any): number | never => {
+  const parseIntThrowing = (v: string): number | never => {
     const parsed = parseInt(v);
 
     if (isNaN(parsed)) throw new Error("Provied value was not a number");
@@ -21,8 +23,13 @@
 
   const handleAddElevator = () => {
     const ID = parseIntThrowing(newID);
+    const high = parseIntThrowing(newHigh) + 1; // inclusive
+    const low = parseIntThrowing(newLow);
 
-    $elevatorSystem.addElevator(ID);
+    $elevatorSystem.addElevator(ID, {
+      high: Math.max(high, low),
+      low: Math.min(high, low)
+    });
     elevatorSystem.update((x) => x); // trigger updates
   };
 
@@ -49,6 +56,10 @@
   };
 </script>
 
+<svelte:head>
+  <title>Elevator System</title>
+</svelte:head>
+
 <h1>Elevators</h1>
 
 <div class="controls">
@@ -57,6 +68,8 @@
     <form on:submit|preventDefault={() => handleAddElevator()}>
       <span>Add elevator</span>
       <input bind:value={newID} type="number" placeholder="New ID" />
+      <input bind:value={newHigh} type="number" placeholder="Highest floor number" />
+      <input bind:value={newLow} type="number" placeholder="Lowest floor number" />
       <button type="submit">Add Elevator</button>
     </form>
     <form on:submit|preventDefault={() => handlePickup()}>
@@ -80,7 +93,7 @@
 
 <h2>Elevators:</h2>
 <div class="elevators">
-  {#each $elevatorSystem.status() as elevatorStatus}
+  {#each $elevatorSystem.statusWithTargets() as elevatorStatus}
     <Elevator {elevatorStatus} />
   {/each}
 </div>

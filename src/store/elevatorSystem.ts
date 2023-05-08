@@ -1,5 +1,7 @@
 import Elevator from "./elevator";
-import type { ElevatorID, ElevatorStatus } from "./elevator";
+import type { ElevatorID, ElevatorStatus, Range } from "./elevator";
+
+type ElevatorStatusExtended = ElevatorStatus & Range & { allTargets: Array<number> };
 
 class ElevatorSystem {
   #elevators: Map<ElevatorID, Elevator>;
@@ -22,9 +24,9 @@ class ElevatorSystem {
     return elevator;
   }
 
-  addElevator(elevatorID: number) {
+  addElevator(elevatorID: number, options?: { low: number; high: number }) {
     if (!this.#elevators.has(elevatorID)) {
-      this.#elevators.set(elevatorID, new Elevator(elevatorID));
+      this.#elevators.set(elevatorID, new Elevator(elevatorID, options));
     }
   }
 
@@ -46,6 +48,15 @@ class ElevatorSystem {
   status(): Array<ElevatorStatus> {
     return [...this.#elevators].map(([, elevator]) => elevator.status);
   }
+
+  // For coloring the UI
+  statusWithTargets(): Array<ElevatorStatusExtended> {
+    return [...this.#elevators].map(([, elevator]) => ({
+      allTargets: elevator.currentTargets,
+      ...elevator.status
+    }));
+  }
 }
 
 export default ElevatorSystem;
+export type { ElevatorStatusExtended as ElevatorStatusTargets };

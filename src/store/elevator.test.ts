@@ -36,7 +36,7 @@ describe("Elevator methods", () => {
   });
 
   it("forceTarget", () => {
-    expect(elevator.currentTarget).toBe(0);
+    expect(elevator.currentTarget).toBe(null);
 
     elevator.forceTarget(4);
     expect(elevator.currentTarget).toBe(4);
