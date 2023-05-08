@@ -37,7 +37,7 @@
     const ID = parseIntThrowing(pickupID);
     const calledFloor = parseIntThrowing(pickupFloor);
 
-    $elevatorSystem?.pickup(ID, calledFloor);
+    $elevatorSystem.pickup(ID, calledFloor);
     elevatorSystem.update((x) => x); // trigger updates
   };
 
@@ -46,12 +46,12 @@
     const newCurrent = parseIntThrowing(updateCurrent);
     const newTarget = parseIntThrowing(updateTarget);
 
-    $elevatorSystem?.update(ID, newCurrent, newTarget);
+    $elevatorSystem.update(ID, newCurrent, newTarget);
     elevatorSystem.update((x) => x); // trigger updates
   };
 
   const handleStep = () => {
-    $elevatorSystem?.step();
+    $elevatorSystem.step();
     elevatorSystem.update((x) => x); // trigger updates
   };
 </script>
