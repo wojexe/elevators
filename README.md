@@ -20,6 +20,10 @@ cd elevators
 # Install dependencies
 npm i
 
+# Build and preview the release version
+npm run build
+npm run preview
+
 # Start the developement server
 npm run dev
 
