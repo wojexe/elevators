@@ -141,6 +141,9 @@ class Elevator {
     if (!isBetweenEqual(targetFloor, this.#range.high, this.#range.low))
       throw new Error(`Provided floor outside of elevator #${this.#id} range`);
 
+    // Skip unshifting the new target if it is already a target
+    if (this.currentTarget! === targetFloor) return;
+
     this.#queue.unshift(targetFloor);
   }
 }
