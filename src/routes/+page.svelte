@@ -66,11 +66,11 @@
   <h2>Controls:</h2>
   <div>
     <form on:submit|preventDefault={() => handleAddElevator()}>
-      <span>Add elevator</span>
+      <span>Create</span>
       <input bind:value={newID} type="number" placeholder="New ID" />
       <input bind:value={newHigh} type="number" placeholder="Highest floor number" />
       <input bind:value={newLow} type="number" placeholder="Lowest floor number" />
-      <button type="submit">Add Elevator</button>
+      <button type="submit">Add elevator</button>
     </form>
     <form on:submit|preventDefault={() => handlePickup()}>
       <span>Pickup</span>
