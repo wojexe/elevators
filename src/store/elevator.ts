@@ -107,9 +107,7 @@ class Elevator {
     }
 
     // Find if there are any targets where this floor is between
-    if (
-      isBetweenEqual(floor, this.#currentFloor, this.currentTarget ?? this.#currentFloor)
-    ) {
+    if (isBetweenEqual(floor, this.#currentFloor, this.currentTarget!)) {
       this.#queue.splice(0, 0, floor);
       return;
     }
